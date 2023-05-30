@@ -13,15 +13,22 @@ import (
 const (
 	appID   = 2992000
 	appHash = "235b12e862d71234ea222082052822fd"
-	chat    = "@testeeeeeeeeetchatoo"
-	limit = 1900
+	chatusername    = "@testeeeeeeeeetchatoo"
+	limit = 2000
 )
 
 var client *telegram.Client
 
 func Spambbet() {
+	chat, err :=  client.GetSendablePeer(chatusername)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 start: 
-		conv1, _ := client.NewConversation(chat, false, 30)
+		conv1, err := client.NewConversation(chat, false, 30)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
 		conv1.SendMessage("/status")
 		msg, _ := conv1.GetResponse()
 		conv1.Close()

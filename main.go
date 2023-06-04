@@ -14,7 +14,7 @@ const (
 	appID        = 2992000
 	appHash      = "235b12e862d71234ea222082052822fd"
 	chatusername = "@testeeeeeeeeetchatoo"
-	limit        = 2000
+	limit        = 1000
 )
 
 var client *telegram.Client
@@ -24,54 +24,54 @@ func Spambbet() {
 	if err != nil {
 		panic(err)
 	}
-start:
-	conv1, err := client.NewConversation(chat, false, 30)
-	if err != nil {
-		fmt.Println(err.Error())
-	}
-	conv1.SendMessage("/status")
-	msg, _ := conv1.GetResponse()
-	conv1.Close()
-	time.Sleep(2 * time.Second)
-	regex := regexp.MustCompile(`Coins: (.+)`)
-	ms := regex.FindStringSubmatch(msg.Text())
-	if len(ms) < 2 {
-		time.Sleep(600 * time.Second)
-		goto start
-	}
-	msgtosend := fmt.Sprintf("/bet %s", strings.ReplaceAll(ms[1][1:], " ", ""))
-	i := 1
-	for i <= limit {
-		client.SendMessage(chat, msgtosend)
+	for {
+		conv1, err := client.NewConversation(chat, false, 30)
+		if err != nil {
+			fmt.Println(err.Error())
+		}
+		conv1.SendMessage("/status")
+		msg, _ := conv1.GetResponse()
+		conv1.Close()
 		time.Sleep(2 * time.Second)
-		i++
+		regex := regexp.MustCompile(`Coins: (.+)`)
+		ms := regex.FindStringSubmatch(msg.Text())
+		if len(ms) < 2 {
+			continue
+		}
+		msgtosend := fmt.Sprintf("/bet %s", strings.ReplaceAll(ms[1][1:], " ", ""))
+		i := 1
+		for i <= limit {
+			client.SendMessage(chat, msgtosend)
+			time.Sleep(2 * time.Second)
+			i++
+		}
+		conv2, _ := client.NewConversation(chat, false, 30)
+		conv2.SendMessage("/tier")
+		msg2, _ := conv2.GetResponse()
+		conv2.Close()
+		if msg2.Message.ReplyMarkup == nil {
+			continue
+		}
+		client.MessagesGetBotCallbackAnswer(&telegram.MessagesGetBotCallbackAnswerParams{
+			Peer:  msg2.Peer,
+			MsgID: msg2.ID,
+			Data:  msg2.Message.ReplyMarkup.(*telegram.ReplyInlineMarkup).Rows[0].Buttons[0].(*telegram.KeyboardButtonCallback).Data,
+		})
+		time.Sleep(2 * time.Second)
+		conv3, _ := client.NewConversation(chat, false, 30)
+		conv3.SendMessage(fmt.Sprintf("/deposit %s", strings.ReplaceAll(ms[1], " ", "")))
+		msg3, _ := conv3.GetResponse()
+		conv3.Close()
+		time.Sleep(2 * time.Second)
+		regex2 := regexp.MustCompile(`deposit (.+) coins.`)
+		ms2 := regex2.FindStringSubmatch(msg3.Text())
+		if len(ms2) < 2 {
+			continue
+		}
+		client.SendMessage(chat, fmt.Sprintf("/deposit %s", ms2[1]))
+		time.Sleep(2 * time.Second)
 	}
-	conv2, _ := client.NewConversation(chat, false, 30)
-	conv2.SendMessage("/tier")
-	msg2, _ := conv2.GetResponse()
-	conv2.Close()
-	if msg2.Message.ReplyMarkup == nil {
-		goto start
-	}
-	client.MessagesGetBotCallbackAnswer(&telegram.MessagesGetBotCallbackAnswerParams{
-		Peer:  msg2.Peer,
-		MsgID: msg2.ID,
-		Data:  msg2.Message.ReplyMarkup.(*telegram.ReplyInlineMarkup).Rows[0].Buttons[0].(*telegram.KeyboardButtonCallback).Data,
-	})
-	time.Sleep(2 * time.Second)
-	conv3, _ := client.NewConversation(chat, false, 30)
-	conv3.SendMessage(fmt.Sprintf("/deposit %s", strings.ReplaceAll(ms[1], " ", "")))
-	msg3, _ := conv3.GetResponse()
-	conv3.Close()
-	time.Sleep(2 * time.Second)
-	regex2 := regexp.MustCompile(`deposit (.+) coins.`)
-	ms2 := regex2.FindStringSubmatch(msg3.Text())
-	if len(ms2) < 2 {
-		goto start
-	}
-	client.SendMessage(chat, fmt.Sprintf("/deposit %s", ms2[1]))
-	time.Sleep(2 * time.Second)
-	goto start
+
 }
 
 func main() {

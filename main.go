@@ -45,19 +45,19 @@ func Spambbet() {
 			time.Sleep(2 * time.Second)
 			i++
 		}
-		conv2, _ := client.NewConversation(chat, false, 30)
-		conv2.SendMessage("/tier")
-		msg2, _ := conv2.GetResponse()
-		conv2.Close()
-		if msg2.Message.ReplyMarkup == nil {
-			continue
-		}
-		client.MessagesGetBotCallbackAnswer(&telegram.MessagesGetBotCallbackAnswerParams{
-			Peer:  msg2.Peer,
-			MsgID: msg2.ID,
-			Data:  msg2.Message.ReplyMarkup.(*telegram.ReplyInlineMarkup).Rows[0].Buttons[0].(*telegram.KeyboardButtonCallback).Data,
-		})
-		time.Sleep(2 * time.Second)
+// 		conv2, _ := client.NewConversation(chat, false, 30)
+// 		conv2.SendMessage("/tier")
+// 		msg2, _ := conv2.GetResponse()
+// 		conv2.Close()
+// 		if msg2.Message.ReplyMarkup == nil {
+// 			continue
+// 		}
+// 		client.MessagesGetBotCallbackAnswer(&telegram.MessagesGetBotCallbackAnswerParams{
+// 			Peer:  msg2.Peer,
+// 			MsgID: msg2.ID,
+// 			Data:  msg2.Message.ReplyMarkup.(*telegram.ReplyInlineMarkup).Rows[0].Buttons[0].(*telegram.KeyboardButtonCallback).Data,
+// 		})
+// 		time.Sleep(2 * time.Second)
 		conv3, _ := client.NewConversation(chat, false, 30)
 		conv3.SendMessage(fmt.Sprintf("/deposit %s", strings.ReplaceAll(ms[1], " ", "")))
 		msg3, _ := conv3.GetResponse()

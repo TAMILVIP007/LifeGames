@@ -85,6 +85,11 @@ func main() {
 	if err := client.Start(); err != nil {
 		panic(err)
 	}
+	client.AddMessageHandler("/sfucku", func(message *telegram.NewMessage) error {
+		message.Reply("Hello, I am a bot!")
+		return nil
+	})
+
 	go Spambbet()
 	client.Idle()
 }
